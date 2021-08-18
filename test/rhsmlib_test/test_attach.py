@@ -30,6 +30,8 @@ from rhsmlib.dbus.objects import AttachDBusObject
 from rhsmlib.dbus import constants
 from rhsmlib.services import attach
 
+from test import subman_test_skip_dbus
+
 CONTENT_JSON = [{
     "id": "19ec0d4f93ae47e18233b2590b3e71f3",
     "consumer": {
@@ -163,6 +165,7 @@ class TestAttachService(InjectionMockingTest):
         self.assertEqual(expected_plugin_calls, self.mock_pm.run.call_args_list)
 
 
+@subman_test_skip_dbus
 class TestAttachDBusObject(DBusObjectTest, InjectionMockingTest):
     def setUp(self):
         super(TestAttachDBusObject, self).setUp()
@@ -203,6 +206,7 @@ class TestAttachDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [['x', 'y'], 1, {}, '']
         self.dbus_request(assertions, self.interface.PoolAttach, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_pool_attach_using_proxy(self):
         def assertions(*args):
@@ -224,6 +228,7 @@ class TestAttachDBusObject(DBusObjectTest, InjectionMockingTest):
             ''
         ]
         self.dbus_request(assertions, self.interface.PoolAttach, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_pool_germany_attach(self):
         def assertions(*args):
@@ -235,6 +240,7 @@ class TestAttachDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [['x', 'y'], 1, {}, 'de']
         self.dbus_request(assertions, self.interface.PoolAttach, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_pool_germany_GERMANY__attach(self):
         def assertions(*args):
@@ -246,6 +252,7 @@ class TestAttachDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [['x', 'y'], 1, {}, 'de_DE']
         self.dbus_request(assertions, self.interface.PoolAttach, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_pool_germany_utf8_attach(self):
         def assertions(*args):
@@ -257,6 +264,7 @@ class TestAttachDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [['x', 'y'], 1, {}, 'de_DE.utf-8']
         self.dbus_request(assertions, self.interface.PoolAttach, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_pool_germany_UTF8_attach(self):
         def assertions(*args):
@@ -268,18 +276,21 @@ class TestAttachDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [['x', 'y'], 1, {}, 'de_DE.UTF-8']
         self.dbus_request(assertions, self.interface.PoolAttach, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_must_be_registered_pool(self):
         self.mock_identity.is_valid.return_value = False
         pool_method_args = [['x', 'y'], 1, {}, '']
         with six.assertRaisesRegex(self, dbus.DBusException, r'requires the consumer to be registered.*'):
             self.dbus_request(None, self.interface.PoolAttach, pool_method_args)
+        self.handler_complete_event.wait()
 
     def test_must_be_registered_auto(self):
         self.mock_identity.is_valid.return_value = False
         auto_method_args = ['service_level', {}, '']
         with six.assertRaisesRegex(self, dbus.DBusException, r'requires the consumer to be registered.*'):
             self.dbus_request(None, self.interface.AutoAttach, auto_method_args)
+        self.handler_complete_event.wait()
 
     def test_auto_attach(self):
         def assertions(*args):
@@ -290,3 +301,4 @@ class TestAttachDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = ['service_level', {}, '']
         self.dbus_request(assertions, self.interface.AutoAttach, dbus_method_args)
+        self.handler_complete_event.wait()

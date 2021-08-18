@@ -20,7 +20,10 @@ from rhsmlib.dbus.facts import constants
 
 from test.rhsmlib_test.base import DBusObjectTest
 
+from test import subman_test_skip_dbus
 
+
+@subman_test_skip_dbus
 class TestFactsDBusObject(DBusObjectTest):
     def setUp(self):
         super(TestFactsDBusObject, self).setUp()

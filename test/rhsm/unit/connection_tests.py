@@ -38,6 +38,8 @@ from time import strftime, gmtime
 from rhsm import ourjson as json
 from collections import namedtuple
 
+from test import subman_test_py2
+
 
 class ConnectionTests(unittest.TestCase):
     def setUp(self):
@@ -943,6 +945,7 @@ class DatetimeFormattingTests(unittest.TestCase):
 
 
 class M2CryptoHttpTests(unittest.TestCase):
+    @subman_test_py2
     def test_index_error_handled(self):
         try:
             from rhsm import m2cryptohttp

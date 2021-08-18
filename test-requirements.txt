@@ -5,9 +5,8 @@
 # immediately available.
 -e ./build_ext
 
-nose
-nose-capturestderr
-nose-randomly
+pytest
+pytest-randomly
 coverage
 polib
 pyinotify

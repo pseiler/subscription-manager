@@ -35,6 +35,7 @@ from rhsm.https import ssl
 if six.PY2:
     from M2Crypto import SSL
 
+from test import subman_test_py2
 
 class InstalledProductStatusTests(SubManFixture):
 
@@ -481,6 +482,7 @@ class HandleExceptionTests(unittest.TestCase):
         except SystemExit as e:
             self.assertEqual(e.code, os.EX_SOFTWARE)
 
+    @subman_test_py2
     def test_he_ssl_wrong_host(self):
         if not six.PY2:
             raise SkipTest("M2Crypto-specific interface. Not used with Python 3.")

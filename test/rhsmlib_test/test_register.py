@@ -42,6 +42,8 @@ from rhsmlib.dbus.objects import RegisterDBusObject
 
 from rhsmlib.services import register, exceptions
 
+from test import subman_test_skip_dbus
+
 CONSUMER_CONTENT_JSON = '''{"hypervisorId": null,
         "serviceLevel": "",
         "autoheal": true,
@@ -450,6 +452,7 @@ class RegisterServiceTest(InjectionMockingTest):
             register.RegisterService(self.mock_cp).validate_options(options)
 
 
+@subman_test_skip_dbus
 class DomainSocketRegisterDBusObjectTest(DBusObjectTest, InjectionMockingTest):
     def dbus_objects(self):
         return [RegisterDBusObject]
@@ -500,6 +503,7 @@ class DomainSocketRegisterDBusObjectTest(DBusObjectTest, InjectionMockingTest):
             six.assertRegex(self, result, r'/run/dbus.*')
 
         self.dbus_request(assertions, self.interface.Start, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_same_socket_on_subsequent_opens(self):
         dbus_method_args = ['']
@@ -511,6 +515,7 @@ class DomainSocketRegisterDBusObjectTest(DBusObjectTest, InjectionMockingTest):
             six.assertRegex(self, assertions.result, r'/run/dbus.*')
 
         self.dbus_request(assertions, self.interface.Start, dbus_method_args)
+        self.handler_complete_event.wait()
 
         # Reset the handler_complete_event so we'll block for the second
         # dbus_request
@@ -521,6 +526,7 @@ class DomainSocketRegisterDBusObjectTest(DBusObjectTest, InjectionMockingTest):
             self.assertEqual(assertions.result, result2)
 
         self.dbus_request(assertions2, self.interface.Start, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_cannot_close_what_is_not_opened(self):
         dbus_method_args = ['']
@@ -536,6 +542,7 @@ class DomainSocketRegisterDBusObjectTest(DBusObjectTest, InjectionMockingTest):
             get_address.address, _equal, _suffix = address.partition(',')
 
         self.dbus_request(get_address, self.interface.Start, dbus_method_args)
+        self.handler_complete_event.wait()
         self.handler_complete_event.clear()
 
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -584,6 +591,7 @@ class DomainSocketRegisterDBusObjectTest(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = ['admin', 'admin', 'admin', {}, {}, '']
         self.dbus_request(assertions, self._build_interface().Register, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_can_get_orgs_over_domain_socket(self):
         expected_owners = json.loads(OWNERS_CONTENT_JSON)
@@ -600,6 +608,7 @@ class DomainSocketRegisterDBusObjectTest(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = ['admin', 'admin', {}, '']
         self.dbus_request(assertions, self._build_interface().GetOrgs, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_can_register_over_domain_socket_with_activation_keys(self):
         expected_consumer = json.loads(CONSUMER_CONTENT_JSON)
@@ -626,3 +635,4 @@ class DomainSocketRegisterDBusObjectTest(DBusObjectTest, InjectionMockingTest):
         ]
 
         self.dbus_request(assertions, self._build_interface().RegisterWithActivationKeys, dbus_method_args)
+        self.handler_complete_event.wait()

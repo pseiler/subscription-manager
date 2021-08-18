@@ -35,6 +35,8 @@ from rhsmlib.dbus.objects import EntitlementDBusObject
 from rhsmlib.services import exceptions
 from rhsmlib.services.entitlement import EntitlementService
 
+from test import subman_test_skip_dbus
+
 
 class TestEntitlementService(InjectionMockingTest):
     def setUp(self):
@@ -509,6 +511,7 @@ class TestEntitlementService(InjectionMockingTest):
         self.assertRaises(ValueError, ent_service.parse_date, on_date)
 
 
+@subman_test_skip_dbus
 class TestEntitlementDBusObject(DBusObjectTest, InjectionMockingTest):
     def setUp(self):
         super(TestEntitlementDBusObject, self).setUp()
@@ -554,6 +557,7 @@ class TestEntitlementDBusObject(DBusObjectTest, InjectionMockingTest):
         self.mock_entitlement.get_status.return_value = expected_status
         dbus_method_args = ["", ""]
         self.dbus_request(assertions, self.interface.GetStatus, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_remove_entitlement_by_serial(self):
         """
@@ -569,6 +573,7 @@ class TestEntitlementDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [["6219625278114868779"], {}, ""]
         self.dbus_request(assertation, self.interface.RemoveEntitlementsBySerials, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_remove_more_entitlement_by_serials(self):
         """
@@ -584,6 +589,7 @@ class TestEntitlementDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [["6219625278114868779", "3573249574655121394"], {}, ""]
         self.dbus_request(assertation, self.interface.RemoveEntitlementsBySerials, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_remove_entitlement_by_serial_with_wrong_serial(self):
         """
@@ -600,6 +606,7 @@ class TestEntitlementDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [["6219625278114868779", "3573249574655121394"], {}, ""]
         self.dbus_request(assertation, self.interface.RemoveEntitlementsBySerials, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_remove_entitlement_by_pool_id(self):
         """
@@ -616,6 +623,7 @@ class TestEntitlementDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [["4028fa7a5dea087d015dea0b025003f6"], {}, ""]
         self.dbus_request(assertation, self.interface.RemoveEntitlementsByPoolIds, dbus_method_args)
+        self.handler_complete_event.wait()
 
     def test_remove_all_entitlements(self):
         """
@@ -631,3 +639,4 @@ class TestEntitlementDBusObject(DBusObjectTest, InjectionMockingTest):
 
         dbus_method_args = [{}, ""]
         self.dbus_request(assertation, self.interface.RemoveAllEntitlements, dbus_method_args)
+        self.handler_complete_event.wait()

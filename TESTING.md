@@ -1,3 +1,102 @@
+# TESTING
+
+- [subscription-manager](#subscription-manager)
+
+## subscription-manager
+
+subscription-manager moved from nose to pytest.
+
+To run the basic test suite, run
+
+```bash
+PYTHONPATH=src/ pytest test/
+# or, for increased verbosity
+PYTHONPATH=src/ pytest -v test/
+```
+
+Some tests are disabled by default, some can be disabled. You can toggle them by passing environment variables to the `pytest`:
+
+```bash
+PYTHONPATH=src/ SUBMAN_TEST_ZYPPER=1 pytest test/
+PYTHONPATH=src/ SUBMAN_TEST_SKIP_DBUS=1 pytest test/
+```
+
+(This is used instead of `nose.plugins.attrib.attr` decorator and `-m` CLI argument.)
+
+To test specific class or function, use `::` as separator:
+
+```bash
+PYTHONPATH=src/ SUBMAN_TEST_ZYPPER=1 pytest test/zypper_test/test_serviceplugin.py::TestServicePlugin::test_can_download_rpm
+PYTHONPATH=src/ SUBMAN_TEST_FUNCTIONAL=1 pytest test/test_l18n.py::TestI18N::test_text_width
+```
+
+To run tests containing some substring, run
+
+```bash
+PYTHONPATH=src/ pytest -k "DBus" test/
+```
+
+If you install `pytest-xdist`, the tests will be run in parallel. The following test runs in 9.67s instead of 22.41s:
+
+```bash
+PYTHONPATH=src/ SUBMAN_TEST_SKIP_DBUS=1 pytest -n 4 --disable-warnings -p no:randomly -v test/
+```
+
+To disable pytest-randomly plugin, run
+
+```bash
+PYTHONPATH=src/ pytest -p no:randomly test/
+```
+
+After all the tests are run, a warnings summary is displayed with the list of deprecations. It can be disabled with `--disable-warnings`.
+
+To compute coverage, run
+
+```bash
+coverage run -m pytest -v test/
+# display ASCII report
+coverage report
+# generate interactive HTML report to htmlcov/
+coverage html
+```
+
+CURRENT PROBLEMS:
+
+- Pytest is slightly slower than nose (45 seconds vs. nose's 33)
+
+- Some DBus tests cause abort:
+
+```
+test/rhsmlib_test/test_entitlement.py::TestEntitlementDBusObject::test_remove_more_entitlement_by_serials
+test/rhsmlib_test/test_register.py::DomainSocketRegisterDBusObjectTest::test_same_socket_on_subsequent_opens
+test/rhsmlib_test/test_entitlement.py::TestEntitlementDBusObject::test_remove_entitlement_by_serial
+test/rhsmlib_test/test_attach.py::TestAttachDBusObject::test_pool_germany_attach
+test/rhsmlib_test/test_attach.py::TestAttachDBusObject::test_pool_germany_attach
+test/rhsmlib_test/test_attach.py::TestAttachDBusObject::test_pool_attach
+```
+
+- Some DBus tests freeze:
+
+```bash
+test/rhsmlib_test/test_register.py::DomainSocketRegisterDBusObjectTest::test_can_register_over_domain_socket
+test/rhsmlib_test/test_register.py::DomainSocketRegisterDBusObjectTest::test_same_socket_on_subsequent_opens
+```
+
+- Some tests emit errors to the console:
+
+```
+test/cli_command_test/test_status.py::TestStatusCommand::test_purpose_status_success [Errno 13] Permission denied: '/var/lib/rhsm/cache'
+Traceback (most recent call last):
+  File "/home/mhorky/subscription-manager/src/subscription_manager/cache.py", line 115, in write_cache
+    os.makedirs(os.path.dirname(self.CACHE_FILE))
+  File "/usr/lib64/python3.9/os.py", line 225, in makedirs
+    mkdir(name, mode)
+PermissionError: [Errno 13] Permission denied: '/var/lib/rhsm/cache'
+PASSED                                                                                                                                            [ 83%]
+```
+
+
+---
 
 # Testing of the game
 

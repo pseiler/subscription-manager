@@ -5,8 +5,8 @@ from subscription_manager import managercli
 from ..stubs import StubConsumerIdentity, StubUEP
 from ..fixture import SubManFixture, Capture
 
-from mock import Mock
-
+from mock import Mock, patch
+import tempfile
 
 class TestStatusCommand(SubManFixture):
     command_class = managercli.StatusCommand
@@ -15,7 +15,11 @@ class TestStatusCommand(SubManFixture):
         super(TestStatusCommand, self).setUp()
         self.cc = self.command_class()
 
-    def test_purpose_status_success(self):
+    @patch("subscription_manager.cache.CacheManager.CACHE_FILE")
+    def test_purpose_status_success(self, MockCacheFile):
+        tempdir = tempfile.TemporaryDirectory()
+        MockCacheFile.return_value = tempdir.name
+
         self.cc.consumerIdentity = StubConsumerIdentity
         self.cc.cp = StubUEP()
         self.cc.cp.setSyspurposeCompliance({'status': 'valid'})
@@ -25,6 +29,8 @@ class TestStatusCommand(SubManFixture):
         with Capture() as cap:
             self.cc._do_command()
         self.assertTrue('System Purpose Status: Matched' in cap.out)
+
+        tempdir.cleanup()
 
     def test_purpose_status_consumer_lack(self):
         self.cc.consumerIdentity = StubConsumerIdentity
@@ -48,7 +54,11 @@ class TestStatusCommand(SubManFixture):
             self.cc._do_command()
         self.assertTrue('System Purpose Status: Unknown' in cap.out)
 
-    def test_purpose_status_mismatch(self):
+    @patch("subscription_manager.cache.CacheManager.CACHE_FILE")
+    def test_purpose_status_mismatch(self, MockCacheFile):
+        tempdir = tempfile.TemporaryDirectory()
+        MockCacheFile.return_value = tempdir.name
+
         self.cc.consumerIdentity = StubConsumerIdentity
         self.cc.cp = StubUEP()
         self.cc.cp.setSyspurposeCompliance({'status': 'mismatched', 'reasons': ['unsatisfied usage: Production']})
@@ -59,3 +69,5 @@ class TestStatusCommand(SubManFixture):
             self.cc._do_command()
         self.assertTrue('System Purpose Status: Mismatched' in cap.out)
         self.assertTrue('unsatisfied usage: Production' in cap.out)
+
+        tempdir.cleanup()

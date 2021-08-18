@@ -3,6 +3,8 @@ from __future__ import print_function, division, absolute_import
 from nose.plugins.attrib import attr
 from mock import patch
 
+from test import subman_test_functional
+
 try:
     import unittest2 as unittest
 except ImportError:
@@ -24,6 +26,7 @@ class TestI18N(unittest.TestCase):
     # determines if python-kitchen replacement gives the
     # same result
     @attr('functional')
+    @subman_test_functional
     def test_text_width(self):
         from kitchen.text.display import textual_width as kitchen_textual_width
         for po_file in glob.glob('po/*.po'):
