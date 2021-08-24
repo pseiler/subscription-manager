@@ -14,7 +14,9 @@ from __future__ import print_function, division, absolute_import
 # granted to use or replicate Red Hat trademarks that are incorporated
 # in this software or its documentation.
 import ast
+import pathlib
 import re
+import sys
 import tokenize
 
 from distutils.spawn import spawn
@@ -48,6 +50,14 @@ except ImportError:
         @staticmethod
         def parse(*args, **kwargs):
             raise NotImplementedError("lxml could not be imported")
+
+try:
+    import pytest
+except ImportError:
+    class pytest:
+        @staticmethod
+        def main(self, *args, **kwargs):
+            raise NotImplementedError("pytest could not be imported")
 
 
 class Lint(BaseCommand):
@@ -88,6 +98,20 @@ class RpmLint(BaseCommand):
     def run(self):
         for f in Utils.find_files_of_type('.', '*.spec'):
             spawn(['rpmlint', '--file=rpmlint.config', f])
+
+
+class PyTest(BaseCommand):
+    description = "run pytest"
+
+    def _add_src_to_path(self):
+        """Add 'src/' to the begginging of the syspath"""
+        root = pathlib.Path(__file__).parents[2]
+        sys.path = [str(root / "src")] + sys.path
+
+    def run(self):
+        self._add_src_to_path()
+        return_code = pytest.main(["test/"])
+        exit(return_code)
 
 
 class FileLint(BaseCommand):

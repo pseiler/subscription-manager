@@ -6,10 +6,10 @@ import os
 import subprocess
 import tempfile
 
-from nose.plugins.attrib import attr
+from test import subman_marker_zypper
 
 
-@attr('zypper')
+@subman_marker_zypper
 class TestServicePlugin(TestCase):
 
     SUB_MAN = "PYTHONPATH=./src python -m subscription_manager.scripts.subscription_manager"

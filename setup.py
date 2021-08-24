@@ -284,9 +284,9 @@ install_requires = [
 
 test_require = [
     'mock',
-    'nose',
-    'nose-capturestderr',
-    'nose-randomly',
+    'pytest',
+    'pytest-randomly',
+    'pytest-timeout',
     'coverage',
     'polib',
     'flake8',
@@ -307,7 +307,8 @@ cmdclass = {
     'lint': lint.Lint,
     'lint_glade': lint.GladeLint,
     'lint_rpm': lint.RpmLint,
-    'flake8': lint.PluginLoadingFlake8
+    'flake8': lint.PluginLoadingFlake8,
+    'pytest': lint.PyTest,
 }
 
 setup(
@@ -359,5 +360,4 @@ setup(
     tests_require=test_require,
     ext_modules=[Extension('rhsm._certificate', ['src/certificate.c'],
                            libraries=['ssl', 'crypto'])],
-    test_suite='nose.collector',
 )

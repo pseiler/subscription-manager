@@ -20,7 +20,7 @@ import random
 import string
 import unittest
 
-from nose.plugins.attrib import attr
+from test import subman_marker_functional
 
 from rhsm.connection import ContentConnection, UEPConnection, Restlib,\
     UnauthorizedException, ForbiddenException, RestlibException
@@ -34,7 +34,7 @@ def random_string(name, target_length=32):
     return name
 
 
-@attr('functional')
+@subman_marker_functional
 class ConnectionTests(unittest.TestCase):
 
     def setUp(self):

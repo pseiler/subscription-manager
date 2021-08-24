@@ -260,7 +260,7 @@ install-files: dbus-install install-conf install-plugins
 
 .PHONY: check
 check:
-	$(PYTHON) setup.py -q nosetests -c playpen/noserc.dev
+	$(PYTHON) setup.py pytest
 
 .PHONY: version_check
 version_check:

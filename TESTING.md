@@ -1,3 +1,114 @@
+# TESTING
+
+- [subscription-manager](#subscription-manager)
+
+## subscription-manager
+
+subscription-manager moved from nose to pytest.
+
+Because of the way Python imports work we have to manually alter the `PYTHONPATH` environment variable. This is true for both the subscription-manager itself and the pytest. You have to run the test suite by altering the path: `PYTHONPATH=src/ pytest`. Or, preferably, export this variable in your `.bashrc` file (or its equivalent in your shell) so it is always set.
+
+When this is done, to run the basic test suite, execute
+
+```bash
+pytest
+# or, for increased verbosity
+pytest -v
+```
+
+Some tests are disabled by default, some can be disabled manually. Defaults are stored in the `tox.ini` file under `[pytest]` section. To overwrite them, use `-m` argument.
+
+For example, to run just the Zypper tests, execute
+
+```bash
+pytest -m zypper
+```
+
+or, to disable DBus tests, run
+
+```bash
+pytest -m "not dbus and not zypper"
+```
+
+To test specific class or function, use `::` as separator:
+
+```bash
+pytest test/test_i18n.py::TestI18N::test_text_width
+```
+
+To only run tests containing some substring, run
+
+```bash
+PYTHONPATH=src/ pytest -k cache
+# or, because there will be long list of deselected tests, use
+PYTHONPATH=src/ pytest -k cache --no-summary
+```
+
+### Plugins
+
+- To disable pytest-randomly plugin, run
+
+```bash
+PYTHONPATH=src/ pytest -p no:randomly test/
+```
+
+- If you install `pytest-xdist` the tests can be run in parallel. The following runs in 9.67s instead of 22.41s:
+
+```bash
+PYTHONPATH=src/ pytest -m "not zypper and not dbus" -n 4 --no-summary -p no:randomly -v test/
+```
+
+- To get prettier error output when the test fails, you can install `pytest-clarity`.
+
+After all the tests are run, a warnings summary is displayed with the list of deprecations. It can be disabled with `--disable-warnings`. Whole summary can be disabled with `--no-summary`.
+
+To compute coverage, run
+
+```bash
+coverage run -m pytest -v test/
+# display ASCII report
+coverage report
+# generate interactive HTML report to htmlcov/
+coverage html
+```
+
+CURRENT PROBLEMS:
+
+- Some DBus tests cause abort:
+
+```
+test/rhsmlib_test/test_entitlement.py::TestEntitlementDBusObject::test_remove_more_entitlement_by_serials
+test/rhsmlib_test/test_register.py::DomainSocketRegisterDBusObjectTest::test_same_socket_on_subsequent_opens
+test/rhsmlib_test/test_entitlement.py::TestEntitlementDBusObject::test_remove_entitlement_by_serial
+test/rhsmlib_test/test_attach.py::TestAttachDBusObject::test_pool_germany_attach
+test/rhsmlib_test/test_attach.py::TestAttachDBusObject::test_pool_germany_attach
+test/rhsmlib_test/test_attach.py::TestAttachDBusObject::test_pool_attach
+```
+
+- Some DBus tests freeze:
+
+```bash
+test/rhsmlib_test/test_register.py::DomainSocketRegisterDBusObjectTest::test_can_register_over_domain_socket
+test/rhsmlib_test/test_register.py::DomainSocketRegisterDBusObjectTest::test_same_socket_on_subsequent_opens
+```
+
+- Some tests emit errors to the console:
+
+```
+test/cli_command_test/test_status.py::TestStatusCommand::test_purpose_status_success [Errno 13] Permission denied: '/var/lib/rhsm/cache'
+Traceback (most recent call last):
+  File "/home/mhorky/subscription-manager/src/subscription_manager/cache.py", line 115, in write_cache
+    os.makedirs(os.path.dirname(self.CACHE_FILE))
+  File "/usr/lib64/python3.9/os.py", line 225, in makedirs
+    mkdir(name, mode)
+PermissionError: [Errno 13] Permission denied: '/var/lib/rhsm/cache'
+PASSED                                                                                                                                            [ 83%]
+```
+
+
+---
+
+Following text may not be up to date.
 
 # Testing of the game
 

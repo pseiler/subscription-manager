@@ -6,13 +6,16 @@ import imp
 import os
 import types
 
-from nose.plugins.skip import SkipTest
+import pytest
 
+skip: bool = False
+import_error: str = ""
 try:
     import dnf
     import librepo
 except ImportError as e:
-    raise SkipTest(e)
+    skip = True
+    import_error = str(e)
 
 
 from . import fixture
@@ -35,11 +38,13 @@ fp, pathname, description = imp.find_module(module_name, [dir_path])
 try:
     dnf_product_id = imp.load_module('dnf_product_id', fp, pathname, description)
 except ImportError as e:
-    raise SkipTest(e)
+    skip = True
+    import_error = str(e)
 finally:
     fp.close()
 
 
+@pytest.mark.skipif(skip, reason=f"DNF dependency could not be imported: {import_error}.")
 class TestDnfPluginModule(fixture.SubManFixture):
     def setUp(self):
         super(TestDnfPluginModule, self).setUp()

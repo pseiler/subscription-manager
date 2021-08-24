@@ -24,8 +24,6 @@ import os
 import ssl
 from tempfile import mkdtemp
 
-from nose.plugins.skip import SkipTest
-
 from rhsm import connection
 from rhsm.connection import UEPConnection, Restlib, ConnectionException, ConnectionSetupException, \
     BadCertificateException, RestlibException, GoneException, NetworkException, \
@@ -943,15 +941,12 @@ class DatetimeFormattingTests(unittest.TestCase):
 
 
 class M2CryptoHttpTests(unittest.TestCase):
+    @pytest.mark.skip("This test only works in Python 2.")
     def test_index_error_handled(self):
-        try:
-            from rhsm import m2cryptohttp
+        from rhsm import m2cryptohttp
 
-            conn = m2cryptohttp.HTTPSConnection('example.com', 443)
-            mock_connection = Mock()
-            mock_connection.request.side_effect = IndexError
-            with patch.object(conn, '_connection', mock_connection):
-                self.assertRaises(socket.error, conn.request, '/foo', '/bar')
-
-        except ImportError:
-            raise SkipTest('m2crypto not supported on python3')
+        conn = m2cryptohttp.HTTPSConnection('example.com', 443)
+        mock_connection = Mock()
+        mock_connection.request.side_effect = IndexError
+        with patch.object(conn, '_connection', mock_connection):
+            self.assertRaises(socket.error, conn.request, '/foo', '/bar')

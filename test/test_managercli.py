@@ -27,13 +27,14 @@ from .fixture import FakeException, FakeLogger, SubManFixture, \
     Capture
 
 from mock import patch, MagicMock
-from nose import SkipTest
 
 # for some exceptions
 from rhsm import connection
 from rhsm.https import ssl
 if six.PY2:
     from M2Crypto import SSL
+
+import pytest
 
 
 class InstalledProductStatusTests(SubManFixture):
@@ -481,9 +482,8 @@ class HandleExceptionTests(unittest.TestCase):
         except SystemExit as e:
             self.assertEqual(e.code, os.EX_SOFTWARE)
 
+    @pytest.mark.skip("This test only works in Python 2.")
     def test_he_ssl_wrong_host(self):
-        if not six.PY2:
-            raise SkipTest("M2Crypto-specific interface. Not used with Python 3.")
         e = SSL.Checker.WrongHost("expectedHost.example.com",
                                   "actualHost.example.com",
                                   "subjectAltName")
