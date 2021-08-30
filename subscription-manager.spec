@@ -587,7 +587,12 @@ of Red Hat subscriptions: subscription-manager-gui, subscription-manager-cockpit
 
 %package -n python3-cloud-what
 Summary: Python package for detection of public cloud provider
+%if 0%{?suse_version}
+Group: Productivity/Networking/System
+License: GPL-2.0
+%else
 License: GPLv2
+%endif
 Requires: python3-requests
 %ifnarch aarch64 ppc ppc64 ppc64le s390 s390x
 Requires:  %{py_package_prefix}-dmidecode %{?dmidecode_version}
@@ -875,6 +880,9 @@ find %{buildroot} -name \*.py* -exec touch -r %{SOURCE0} '{}' \;
 # syspurpose
 %dir %{python_sitearch}/syspurpose
 %{python_sitearch}/syspurpose/*.py
+%if 0%{?suse_version}
+%{python_sitearch}/syspurpose/*.pyc
+%endif
 %if %{with python3}
 %{python_sitearch}/syspurpose/__pycache__
 %endif
@@ -885,6 +893,10 @@ find %{buildroot} -name \*.py* -exec touch -r %{SOURCE0} '{}' \;
 
 # Despite the name similarity dbus-1/system.d has nothing to do with systemd
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/com.redhat.*.conf
+%if 0%{?suse_version}
+%dir %{_sysconfdir}/dbus-1
+%dir %{_sysconfdir}/dbus-1/system.d
+%endif
 %if %use_systemd
     %attr(644,root,root) %{_unitdir}/*.service
     %attr(644,root,root) %{_tmpfilesdir}/%{name}.conf
